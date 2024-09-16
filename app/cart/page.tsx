@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
-import Header from "@/components/header"
+import Header from "@/components/component/header"
 
 export default function Component() {
   return (

@@ -5,13 +5,13 @@ import { Url } from "next/dist/shared/lib/router/router";
 
 export interface Message extends Document{
     content : string;
-    createdAt : Date
+    createdAt : Date;
     //image : Url
 }
 
 const MessageSchema: Schema<Message> = new Schema{(
     content : {
-        type : String,
+        type : string,
         required : true 
     },
     createdAt : {
@@ -28,7 +28,7 @@ export interface User extends Document{
     verifyCode: string;
     verifyCodeExpire: Date;
     isVerified: boolean;
-    isAcceptingMessage: boolean;
+    // isAcceptingMessage: boolean;
     message: Message[]
 }
 

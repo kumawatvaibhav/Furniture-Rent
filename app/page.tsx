@@ -1,9 +1,6 @@
 'use client';
-
-import TypingAnimation from "@/components/magicui/typing-animation";
 import Image from "next/image";
-import Header from "@/components/header";
-import Spline from '@splinetool/react-spline';
+import Header from "@/components/component/header";
 import product from '@/lib/Card_data';
 import { Button } from "@/components/ui/button";
 const imageStyle = {
@@ -21,10 +18,9 @@ import {
   Card,
   CardFooter,
 } from "@/components/ui/card";
-import living from "@/public/living_room.jpg";
-import bed_room from "@/public/bed_room.jpg";
-import office from "@/public/office.jpg"
-import { contain } from "three/src/extras/TextureUtils.js";
+import RoomModel from "@/components/3D_interact/RoomModel";
+import Spline from "@splinetool/react-spline";
+import CardStack from "@/components/ui/card-stack";
 
 export function CardStackDemo() {
   return (
@@ -40,7 +36,8 @@ export default function Home(){
       <Header />
       <section id="Main-section" className="h-screen">
         <div className="w-full">
-          <Spline scene="https://prod.spline.design/zjn66bHs3hgB06Om/scene.splinecode" />
+        <Spline scene="https://prod.spline.design/zjn66bHs3hgB06Om/scene.splinecode"/>
+        {/* <RoomModel splineUrl="https://prod.spline.design/zjn66bHs3hgB06Om/scene.splinecode" /> */}
         </div>
       </section>
       <section id="Explore" className="bg-muted p-10 py-16 md:py-32 h-screen">

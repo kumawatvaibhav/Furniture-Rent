@@ -16,6 +16,11 @@ const fontBody = Space_Mono({
   weight: '700'
 })
 
+export const metadat = {
+  title: 'Ario!',
+  description: 'Ario is a furniture-rental website',
+}
+
 export default function Layout({ children }) {
   return (
     <html lang="en">
