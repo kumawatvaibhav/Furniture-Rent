@@ -178,10 +178,12 @@ export function DashboardComponent() {
               className="pl-10 w-full"
             />
           </div>
-          <Button className="bg-red-400">
-            <PlusIcon className="w-5 h-5 mr-2" />
-            Add Furniture
-          </Button>
+          <Link href="/dashboard/add_product">
+            <Button className="bg-red-400">
+              <PlusIcon className="w-5 h-5 mr-2" />
+              Add Furniture
+            </Button>
+          </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredFurniture.map((item) => (

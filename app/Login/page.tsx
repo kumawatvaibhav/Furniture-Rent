@@ -3,62 +3,52 @@ import axios from "axios";
 import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/cn";
 import { Button } from "@/components/ui/button";
-import {Card, CardHeader, CardTitle, CardDescription, CardContent} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import Link from "next/link";
+import { useRouter } from 'next/navigation';
 
 export default function Login() {
-  
-   //const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
- 
-  const handleFormValueChange = (e) => {
-   if(e.target.id === 'email'){
-     setEmail(e.target.value);
-   } 
-   if(e.target.id === 'password'){
-     setPassword(e.target.value);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const router = useRouter();
+
+  const handleFormValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.id === "email") {
+      setEmail(e.target.value);
     }
-  }
-   
-  const login = () => {
-    const options = {
-      method: 'POST',
-      url: 'http://localhost:8000/api/v1/users/login',
-      headers: {'Content-Type': 'application/json'},
-      data: {email, password}
-    };
- 
-    axios.request(options).then(function (response) {
-      alert("succesfully logged in")
-      const responseData = response.data;
-      const propName = 'token'; 
-      const propertyValue = responseData[propName];
-      sessionStorage.setItem('jwtToken', propertyValue);
-      const decodedToken = atob(propertyValue?.split?.('.')?.[1]);
-      sessionStorage.setItem("userId", JSON.parse(decodedToken)?.user?._id);
-      sessionStorage.setItem("emailId", JSON.parse(decodedToken)?.user?.email);
- 
-      console.log(response.data);
-      window.location.href = '/';
-    }).catch(function (error) {
-      alert("Something went wrong")
-      console.error(error);
-    });
- 
-     // useEffect(() => {
-     //   axios.get(options.url).then((response) => {
-           
-     //       // Redirect to home page using navigate
-     //       navigate('/'); // Redirect to the home page
-     //     })
-     //     .catch((error) => {
-     //       console.error('Error:', error);
-     //     });
-     // }, []);
-  }
+    if (e.target.id === "password") {
+      setPassword(e.target.value);
+    }
+  };
+
+  const login = async (email: string, password: string) => {
+    setLoading(true);
+    setErrorMessage("");
+    try {
+      const response = await axios.post("/api/auth/login", { email, password });
+      const { token } = response.data;
+      
+      // Save the token in localStorage
+      localStorage.setItem('token', token);
+      alert(response.data.message || "Login successful");
+      
+      // Redirect to the homepage or profile
+      router.push("/");
+    } catch (error) {
+      console.error("Login Error:", error);
+      if (error.response && error.response.data) {
+        setErrorMessage(error.response.data.message || "Login failed. Please try again.");
+      } else {
+        setErrorMessage("Something went wrong. Please check your credentials and try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  
 
   return (
     <div className="flex h-screen items-center justify-center bg-gradient-to-r from-red-500 to-orange-300">
@@ -66,9 +56,14 @@ export default function Login() {
         <Card className="mx-auto max-w-sm flex-2">
           <CardHeader className="space-y-1">
             <CardTitle>Welcome to Ario!</CardTitle>
-            <CardDescription>Enter your credentails </CardDescription>
+            <CardDescription>Enter your credentials</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6 p-6">
+            {errorMessage && (
+              <div className="text-red-500 text-center">
+                {errorMessage}
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -76,6 +71,7 @@ export default function Login() {
                 id="email"
                 placeholder="name@example.com"
                 type="email"
+                value={email}
               />
             </div>
             <div className="space-y-2">
@@ -87,51 +83,28 @@ export default function Login() {
                 id="password"
                 placeholder="••••••••"
                 type="password"
+                value={password}
               />
             </div>
-            <div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="create account?" className="text-sm">
-                  don't have an account?
-                </Label>
-                <Link href="/register" className="text-sm">
-                  Signup
-                </Link>
-              </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="create account?" className="text-sm">
+                Don't have an account?
+              </Label>
+              <Link href="/register" className="text-sm">
+                Signup
+              </Link>
             </div>
             <Button
-              onClick={login}
+              onClick={() => login(email, password)}
               className="w-full hover:bg-black-400"
-              type="submit"
+              disabled={loading}
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </Button>
           </CardContent>
         </Card>
       </div>
     </div>
   );
+
 }
-
-const BottomGradient = () => {
-  return (
-    <>
-      <span className="group-hover/btn:opacity-100 block transition duration-500 opacity-0 absolute h-px w-full -bottom-px inset-x-0 bg-gradient-to-r from-transparent via-cyan-500 to-transparent" />
-      <span className="group-hover/btn:opacity-100 blur-sm block transition duration-500 opacity-0 absolute h-px w-1/2 mx-auto -bottom-px inset-x-10 bg-gradient-to-r from-transparent via-indigo-500 to-transparent" />
-    </>
-  );
-};
-
-const LabelInputContainer = ({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => {
-  return (
-    <div className={cn("flex flex-col space-y-2 w-full", className)}>
-      {children}
-    </div>
-  );
-};

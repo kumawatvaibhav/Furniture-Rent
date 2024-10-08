@@ -31,10 +31,6 @@ export default function Dashboard() {
         }
     }, [router]);
 
-    // if (isLoading) {
-    //     return <Spinner />;
-    // }
-
     if (!isAuthenticated) {
         return null;
     }

@@ -1,73 +1,40 @@
-import mongoose, {Schema , Document} from "mongoose";
-import { Url } from "next/dist/shared/lib/router/router";
+import mongoose, { Schema, Document } from 'mongoose';
+import bcrypt from 'bcryptjs';
 
-
-
-export interface Message extends Document{
-    content : string;
-    createdAt : Date;
-    //image : Url
+export interface IUser extends Document {
+  username: string;
+  email: string;
+  password: string;
+  isVerified: boolean;
+  isAcceptingMessages: boolean;
+  comparePassword(enteredPassword: string): Promise<boolean>;
 }
 
-const MessageSchema: Schema<Message> = new Schema{(
-    content : {
-        type : string,
-        required : true 
-    },
-    createdAt : {
-        type : Date,
-        required : true,
-        default: Date.now
-    }
-)}
+const UserSchema: Schema = new Schema(
+  {
+    username: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    isVerified: { type: Boolean, default: false },
+    isAcceptingMessages: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+);
 
-export interface User extends Document{
-    username: string;
-    email: string;
-    password: string;
-    verifyCode: string;
-    verifyCodeExpire: Date;
-    isVerified: boolean;
-    // isAcceptingMessage: boolean;
-    message: Message[]
-}
+// Hashing password before saving
+UserSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
+    next();
+  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
 
-const UserSchema: Schema<User> = new Schema{(
-    username:{
-        type : String,
-        required : [true, "Username is required"]
-        trim: true,
-        unique: true,
-    },
-    email : {
-        type : String,
-        required : [true, "Email is required"],
-        unique: true
-        match:  ['Please use a valid email address']
-    },
-    password : {
-        type : String,
-        required : [true, "Password is required"],
-    },
-    verifyCode : {
-        type : String,
-        required : [true, "Verify code is required"]
-    },
-    verifyCodeExpire : {
-        type : Date,
-        required : [true, "Verify code expire is required"],
-    },
-    isVerified : {
-        type : Boolean,
-        default: false,
-    },
-    isAcceptingMessage : {
-        type : Boolean,
-        default: true,
-    },
-    message: [MessageSchema]
-)}
+// Compare password method
+UserSchema.methods.comparePassword = async function (enteredPassword: string) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
-const UserModel = (mongoose.models.User as mongoose.Model<User>) || mongoose.model<User>('User',UserSchema)
+const User = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
 
-export default UserModel;
+export default User;
