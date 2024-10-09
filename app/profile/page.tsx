@@ -35,8 +35,8 @@ export default function ProfilePage() {
   const handleLogout = async () => {
     try {
       // Remove token from cookies or session
-      await axios.post('/api/user/logout'); // Assuming you have a logout API route
-      // Redirect to login page
+      await axios.post('/api/user/logout');
+
       router.push('/');
     } catch (error) {
       console.error('Logout failed:', error);

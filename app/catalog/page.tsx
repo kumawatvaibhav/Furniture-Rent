@@ -12,32 +12,32 @@ import {
   PaginationNext,
   PaginationLink,
 } from "@/components/ui/pagination";
-import { Link } from "lucide-react";
+import { Link, SearchIcon } from "lucide-react";
 
 export default function Catalog() {
   const [furnitureItems, setFurnitureItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedCategory, setSelectedCategory] = useState(""); // To store selected category
-  const [currentUser, setCurrentUser] = useState(null); // User state
+  const [selectedCategory, setSelectedCategory] = useState(""); 
+  const [currentUser, setCurrentUser] = useState(null); 
 
   const itemsPerPage = 10;
   const categories = ["Chairs", "Tables", "Sofas", "Beds", "Desks"]; 
 
   useEffect(() => {
-    // Check if the user is logged in by accessing session storage
     const user = sessionStorage.getItem('currentUser');
     if (user) {
-      setCurrentUser(JSON.parse(user)); // Parse and set the user object
+      const parsedUser = JSON.parse(user);
+      console.log("Current User:", parsedUser); // Debugging: Check the user object
+      setCurrentUser(parsedUser); // Set user state
     }
 
     const fetchFurnitureData = async () => {
       try {
         const response = await fetch("http://localhost:3000/api/furniture/list");
         const data = await response.json();
-        
-        console.log("Fetched furniture data:", data); // Debug: Check the data
+        console.log("Fetched furniture data:", data);
         setFurnitureItems(data.furniture); 
         setLoading(false);
       } catch (error) {
@@ -51,24 +51,22 @@ export default function Catalog() {
 
   const addToCart = async (furnitureId: string) => {
     if (!currentUser) {
-      alert("Please log in to add items to your cart."); // Prompt user to log in
+      alert("Please log in to add items to your cart.");
       return;
     }
 
+    console.log("Adding to cart for user ID:", currentUser._id); // Debugging: Check the user ID
     const response = await fetch('http://localhost:3000/api/cart/add', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        userId: currentUser.id,  // Use the current user's ID
-        furnitureId: furnitureId,  // Use the furniture ID
-        quantity: 1,               // Set the quantity
+        userId: currentUser._id,  // Use the current user's ID
+        furnitureId: furnitureId,
+        quantity: 1,
       }),
     });
-  
-    //debugging only ohk :
-    console.log(response);
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -117,7 +115,6 @@ export default function Catalog() {
             </div>
 
             <div className="mt-10 flex items-center justify-between">
-              {/* Search Input */}
               <div className="relative w-full max-w-md">
                 <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
@@ -129,7 +126,6 @@ export default function Catalog() {
                 />
               </div>
 
-              {/* Category Filter Dropdown */}
               <div className="relative">
                 <select
                   value={selectedCategory}
@@ -177,7 +173,7 @@ export default function Catalog() {
                         variant="outline"
                         size="sm"
                         className="rounded-full p-2 hover:bg-primary hover:text-primary-foreground"
-                        onClick={() => addToCart(item._id)} // Only add to cart if logged in
+                        onClick={() => addToCart(item._id)} // Use the current user's ID
                       >
                         <PlusIcon className="h-5 w-5" />
                         <span className="sr-only">Add to cart</span>
@@ -203,7 +199,6 @@ export default function Catalog() {
                       />
                     </PaginationItem>
 
-                    {/* Display page numbers dynamically */}
                     {[...Array(totalPages)].map((_, i) => (
                       <PaginationItem key={i}>
                         <PaginationLink
@@ -237,17 +232,7 @@ export default function Catalog() {
 function PlusIcon(props) {
   return (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M5 12h14" />
-      <path d="M12 5v14" />
-    </svg>
-  );
-}
-
-function SearchIcon(props) {
-  return (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="10.5" cy="10.5" r="7.5" />
-      <line x1="16.5" y1="16.5" x2="20.5" y2="20.5" />
+      <path d="M5 12h14m-7-7v14" />
     </svg>
   );
 }

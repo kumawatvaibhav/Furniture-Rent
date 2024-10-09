@@ -1,30 +1,26 @@
-import mongoose from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 
-const FurnitureSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  price: {
-    type: Number,
-    required: true,
-  },
-  category: {
-    type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  image: {
-    type: String,
-    required: false, // Optional if images aren't mandatory
-  },
-  available: {
-    type: Boolean,
-    default: true, // Assuming furniture is available by default
-  },
-}, { timestamps: true });
+export interface IFurniture extends Document {
+  name: string;
+  price: number;
+  description?: string;
+  image?: string;
+  category?: string;
+  available?: boolean;
+}
 
-export default mongoose.models.Furniture || mongoose.model('Furniture', FurnitureSchema);
+const FurnitureSchema: Schema = new Schema(
+  {
+    name: { type: String, required: true },
+    price: { type: Number, required: true },
+    description: { type: String },
+    image: { type: String },
+    category: { type: String },
+    available: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
+
+const Furniture = mongoose.models.Furniture || mongoose.model<IFurniture>('Furniture', FurnitureSchema);
+
+export default Furniture;
