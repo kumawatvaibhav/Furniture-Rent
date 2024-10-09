@@ -28,14 +28,16 @@ export default function Login() {
     setLoading(true);
     setErrorMessage("");
     try {
-      const response = await axios.post("/api/auth/login", { email, password });
+      const response = await axios.post("/api/auth/login", { email, password});
       const { token } = response.data;
       
       // Save the token in localStorage
       localStorage.setItem('token', token);
       alert(response.data.message || "Login successful");
-      
-      // Redirect to the homepage or profile
+
+      // On successful login
+      sessionStorage.setItem('currentUser', JSON.stringify(response));
+
       router.push("/");
     } catch (error) {
       console.error("Login Error:", error);

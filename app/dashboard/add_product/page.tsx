@@ -14,7 +14,7 @@ function AddFurniture() {
     name: "",
     category: "",
     price: "",
-    description: ""
+    description: "",
   });
 
   const [image, setImage] = useState<File | null>(null);
@@ -24,7 +24,9 @@ function AddFurniture() {
 
   const router = useRouter();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFurnitureDetails({ ...furnitureDetails, [e.target.id]: e.target.value });
   };
 
@@ -37,16 +39,16 @@ function AddFurniture() {
   const submitFurniture = async () => {
     setLoading(true);
     setErrorMessage("");
-  
+
     const formData = new FormData();
     formData.append("name", furnitureDetails.name);
     formData.append("category", furnitureDetails.category);
     formData.append("price", furnitureDetails.price);
     formData.append("description", furnitureDetails.description);
     if (image) {
-      formData.append("image", image); // Ensure you're appending the image
+      formData.append("image", image);
     }
-  
+
     try {
       await axios.post("/api/furniture/add", formData, {
         headers: {
@@ -62,7 +64,6 @@ function AddFurniture() {
       setLoading(false);
     }
   };
-  
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: handleDrop,
@@ -75,14 +76,19 @@ function AddFurniture() {
       <div className="w-full max-w-xl">
         <Card className="mx-auto bg-white shadow-lg rounded-lg">
           <CardHeader className="p-6 bg-red-400 text-white rounded-t-lg">
-            <CardTitle className="text-xl font-bold">Add New Furniture</CardTitle>
+            <CardTitle className="text-xl font-bold">
+              Add New Furniture
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-6">
-            {errorMessage && <div className="text-red-500 text-center">{errorMessage}</div>}
+            {errorMessage && (
+              <div className="text-red-500 text-center">{errorMessage}</div>
+            )}
 
-            {/* Furniture Name */}
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-gray-700">Furniture Name</Label>
+              <Label htmlFor="name" className="text-gray-700">
+                Furniture Name
+              </Label>
               <Input
                 id="name"
                 placeholder="Enter furniture name"
@@ -92,9 +98,10 @@ function AddFurniture() {
               />
             </div>
 
-            {/* Category */}
             <div className="space-y-2">
-              <Label htmlFor="category" className="text-gray-700">Category</Label>
+              <Label htmlFor="category" className="text-gray-700">
+                Category
+              </Label>
               <Input
                 id="category"
                 placeholder="Enter category"
@@ -104,9 +111,10 @@ function AddFurniture() {
               />
             </div>
 
-            {/* Price */}
             <div className="space-y-2">
-              <Label htmlFor="price" className="text-gray-700">Price</Label>
+              <Label htmlFor="price" className="text-gray-700">
+                Price
+              </Label>
               <Input
                 id="price"
                 placeholder="Enter price"
@@ -117,9 +125,10 @@ function AddFurniture() {
               />
             </div>
 
-            {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-gray-700">Description</Label>
+              <Label htmlFor="description" className="text-gray-700">
+                Description
+              </Label>
               <Textarea
                 id="description"
                 placeholder="Enter a brief description"
@@ -129,12 +138,15 @@ function AddFurniture() {
               />
             </div>
 
-            {/* Image Upload */}
             <div className="space-y-2">
               <Label className="text-gray-700">Furniture Image</Label>
               <div
                 {...getRootProps()}
-                className={`p-6 border-2 border-dashed rounded-lg cursor-pointer text-center ${isDragActive ? "border-green-500 bg-green-50" : "border-gray-400 bg-gray-50"}`}
+                className={`p-6 border-2 border-dashed rounded-lg cursor-pointer text-center ${
+                  isDragActive
+                    ? "border-green-500 bg-green-50"
+                    : "border-gray-400 bg-gray-50"
+                }`}
               >
                 <input {...getInputProps()} />
                 {isDragActive ? (
@@ -154,7 +166,6 @@ function AddFurniture() {
               )}
             </div>
 
-            {/* Submit Button */}
             <Button
               onClick={submitFurniture}
               className="w-full bg-red-400 text-white font-semibold py-3 rounded-lg"

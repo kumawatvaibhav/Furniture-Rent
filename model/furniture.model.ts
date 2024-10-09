@@ -23,7 +23,8 @@ const FurnitureSchema = new mongoose.Schema({
   },
   available: {
     type: Boolean,
-  }
+    default: true, // Assuming furniture is available by default
+  },
 }, { timestamps: true });
 
 export default mongoose.models.Furniture || mongoose.model('Furniture', FurnitureSchema);

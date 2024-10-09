@@ -15,8 +15,9 @@ const UserSchema: Schema = new Schema(
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    isVerified: { type: Boolean, default: false },
-    isAcceptingMessages: { type: Boolean, default: false },
+    avatar: {type: String},
+    address: {type: String},
+    phone: {type: String},
   },
   { timestamps: true }
 );

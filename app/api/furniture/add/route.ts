@@ -1,57 +1,71 @@
-import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/dbConnect';
-import Furniture from '@/model/furniture.model';
-import formidable from 'formidable';
-import path from 'path';
+import { NextRequest, NextResponse } from "next/server";
+import dbConnect from "@/lib/dbConnect";
+import Furniture from "@/model/furniture.model";
+import fs from "fs";
+import path from "path";
 
-// Disable Next.js built-in body parser to handle multipart/form-data
 export const config = {
-    api: {
-        bodyParser: false,
-    },
+  api: {
+    bodyParser: false,
+  },
 };
 
 // POST method to add new furniture
 export async function POST(req: NextRequest) {
-    await dbConnect();
+  console.log("Connecting to database...");
+  await dbConnect();
+  console.log("Database connected.");
 
-    const form = formidable({
-        uploadDir: path.join(process.cwd(), '/public/uploads'),
-        keepExtensions: true,
-        // You can set other options here
+  // Create a directory to store uploaded images if it doesn't exist
+  const uploadDir = path.join(process.cwd(), "public/uploads");
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+
+  // Use FormData to parse the request body
+  const formData = await req.formData();
+
+  const name = formData.get("name");
+  const category = formData.get("category");
+  const price = formData.get("price");
+  const description = formData.get("description");
+  const imageFile = formData.get("image") as File;
+
+  // Define image path and write file
+  let imagePath = null;
+  if (imageFile) {
+    const filePath = path.join(uploadDir, imageFile.name);
+    await fs.promises.writeFile(
+      filePath,
+      Buffer.from(await imageFile.arrayBuffer())
+    );
+    imagePath = `/uploads/${imageFile.name}`;
+  }
+
+  try {
+    console.log("Creating a new furniture record...");
+    const newFurniture = await Furniture.create({
+      name,
+      price,
+      category,
+      description,
+      image: imagePath,
     });
 
-    return new Promise((resolve, reject) => {
-        // Use the `req` as a Node.js stream
-        const stream = req as any; // Cast the NextRequest to 'any'
+    console.log("Furniture added successfully:", newFurniture);
 
-        form.parse(stream, async (err, fields, files) => {
-            if (err) {
-                console.error("Error parsing form data:", err);
-                return resolve(NextResponse.json({ message: 'Error parsing form data', error: err }, { status: 500 }));
-            }
-
-            try {
-                const { name, price, category, description, dimensions } = fields;
-                const image = files.image ? files.image.newFilename : null;
-
-                const newFurniture = await Furniture.create({
-                    name,
-                    price,
-                    category,
-                    description,
-                    dimensions,
-                    image: image ? `/uploads/${image}` : null,
-                });
-
-                resolve(NextResponse.json(
-                    { message: 'Furniture added successfully', furniture: newFurniture },
-                    { status: 201 }
-                ));
-            } catch (error) {
-                console.error("Error adding furniture:", error);
-                resolve(NextResponse.json({ message: 'Error adding furniture', error }, { status: 500 }));
-            }
-        });
-    });
+    return NextResponse.json(
+      {
+        message: "Furniture added successfully",
+        furniture: newFurniture,
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Error adding furniture:", error);
+    return NextResponse.json(
+      { message: "Error adding furniture", error },
+      { status: 500 }
+    );
+  }
 }

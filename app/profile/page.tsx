@@ -1,87 +1,141 @@
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import {Textarea} from "@nextui-org/input";
+'use client';
 
-export default function Component() {
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@nextui-org/input";
+import axios from 'axios';
+
+export default function ProfilePage() {
+  const [userData, setUserData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Fetch user data from API
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get('/api/user/profile'); // Update this URL as needed
+        setUserData(response.data);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  // Handle Logout
+  const handleLogout = async () => {
+    try {
+      // Remove token from cookies or session
+      await axios.post('/api/user/logout'); // Assuming you have a logout API route
+      // Redirect to login page
+      router.push('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!userData) {
+    return <div>Error loading user data</div>;
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="bg-primary text-primary-foreground py-6 px-4 md:px-6">
         <div className="container flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Avatar className="w-12 h-12 md:w-16 md:h-16">
-              <AvatarImage src="/placeholder-user.jpg" alt="@shadcn" />
-              <AvatarFallback>CN</AvatarFallback>
+              <AvatarImage src={userData.avatar || "/placeholder-user.jpg"} alt={userData.name} />
+              <AvatarFallback>{userData.name?.[0]}</AvatarFallback>
             </Avatar>
             <div className="grid gap-1">
-              <h1 className="text-xl font-semibold md:text-2xl">Catherine Johnson</h1>
-              <p className="text-sm text-primary-foreground/80">catherine@ario.com</p>
+              <h1 className="text-xl font-semibold md:text-2xl">{userData.name}</h1>
+              <p className="text-sm text-primary-foreground/80">{userData.email}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="secondary" size="sm">
-              Account Details
-            </Button>
-            <Button variant="outline" size="sm" className="text-black">
+            <Button variant="outline" size="sm" className="text-black" onClick={handleLogout}>
               Logout
             </Button>
           </div>
         </div>
       </header>
+
       <main className="flex-1 py-8 px-4 md:px-6">
         <div className="container grid gap-8">
+          {/* Rented Furniture Section */}
           <section>
             <h2 className="text-2xl font-semibold">Rented Furniture</h2>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              <Card>
-                <CardContent className="grid gap-4">
-                  <img
-                    src="/placeholder.svg"
-                    alt="Furniture Image"
-                    width={300}
-                    height={200}
-                    className="mt-5 rounded-lg object-cover aspect-[3/2]"
-                  />
-                  <div className="grid gap-1">
-                    <h3 className="text-lg font-semibold">Modern Leather Sofa</h3>
-                    <p className="text-muted-foreground">Rented since: June 15, 2023</p>
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
-                        Return
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        Extend
-                      </Button>
+              {userData.rentedFurniture?.map((item) => (
+                <Card key={item.id}>
+                  <CardContent className="grid gap-4">
+                    <img
+                      src={item.image || "/placeholder.svg"}
+                      alt="Furniture Image"
+                      width={300}
+                      height={200}
+                      className="mt-5 rounded-lg object-cover aspect-[3/2]"
+                    />
+                    <div className="grid gap-1">
+                      <h3 className="text-lg font-semibold">{item.name}</h3>
+                      <p className="text-muted-foreground">Rented since: {item.rentedSince}</p>
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm">
+                          Return
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          Extend
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </section>
+
+          {/* Past Orders Section */}
           <section>
             <h2 className="text-2xl font-semibold">Past Orders</h2>
             <div className="grid gap-4">
-              <Card>
-                <CardContent className="grid gap-4 md:grid-cols-[1fr_auto]">
-                  <div className="mt-5 grid gap-2">
-                    <h3 className="text-lg font-semibold">Scandinavian Armchair</h3>
-                    <p className="text-muted-foreground">Rented from: September 1, 2022 - November 1, 2022</p>
-                    <p className="text-muted-foreground">Total: $299 + $50 delivery</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">
-                      Rent Again
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Leave Review
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              {userData.pastOrders?.map((order) => (
+                <Card key={order.id}>
+                  <CardContent className="grid gap-4 md:grid-cols-[1fr_auto]">
+                    <div className="mt-5 grid gap-2">
+                      <h3 className="text-lg font-semibold">{order.name}</h3>
+                      <p className="text-muted-foreground">
+                        Rented from: {order.startDate} - {order.endDate}
+                      </p>
+                      <p className="text-muted-foreground">Total: {order.total}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm">
+                        Rent Again
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        Leave Review
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </section>
+
+          {/* Update Profile Section */}
           <section>
             <h2 className="text-2xl font-semibold">Update Profile</h2>
             <Card>
@@ -89,21 +143,21 @@ export default function Component() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="name">Name</Label>
-                    <Input id="name" defaultValue="Catherine Johnson" />
+                    <Input id="name" defaultValue={userData.name} />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" defaultValue="catherine@ario.com" />
+                    <Input id="email" type="email" defaultValue={userData.email} />
                   </div>
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="address">Address</Label>
-                  <Textarea id="address" rows={3} defaultValue="123 Main St, Anytown USA 12345" />
+                  <Textarea id="address" rows={3} defaultValue={userData.address} />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="phone">Phone</Label>
-                    <Input id="phone" type="tel" defaultValue="(123) 456-7890" />
+                    <Input id="phone" type="tel" defaultValue={userData.phone} />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="password">Password</Label>
@@ -119,5 +173,5 @@ export default function Component() {
         </div>
       </main>
     </div>
-  )
+  );
 }

@@ -20,17 +20,25 @@ export default function Catalog() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState(""); // To store selected category
-  const itemsPerPage = 10;
+  const [currentUser, setCurrentUser] = useState(null); // User state
 
-  const categories = ["Chairs", "Tables", "Sofas", "Beds", "Desks"]; // Sample categories
+  const itemsPerPage = 10;
+  const categories = ["Chairs", "Tables", "Sofas", "Beds", "Desks"]; 
 
   useEffect(() => {
+    // Check if the user is logged in by accessing session storage
+    const user = sessionStorage.getItem('currentUser');
+    if (user) {
+      setCurrentUser(JSON.parse(user)); // Parse and set the user object
+    }
+
     const fetchFurnitureData = async () => {
       try {
-        const response = await fetch("https://66f278d171c84d80587562dc.mockapi.io/api/Product");
+        const response = await fetch("http://localhost:3000/api/furniture/list");
         const data = await response.json();
+        
         console.log("Fetched furniture data:", data); // Debug: Check the data
-        setFurnitureItems(data); // Assuming API returns a list of furniture items
+        setFurnitureItems(data.furniture); 
         setLoading(false);
       } catch (error) {
         console.error("Error fetching furniture data:", error);
@@ -40,6 +48,37 @@ export default function Catalog() {
 
     fetchFurnitureData();
   }, []);
+
+  const addToCart = async (furnitureId: string) => {
+    if (!currentUser) {
+      alert("Please log in to add items to your cart."); // Prompt user to log in
+      return;
+    }
+
+    const response = await fetch('http://localhost:3000/api/cart/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: currentUser.id,  // Use the current user's ID
+        furnitureId: furnitureId,  // Use the furniture ID
+        quantity: 1,               // Set the quantity
+      }),
+    });
+  
+    //debugging only ohk :
+    console.log(response);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error adding to cart:', errorData.message);
+      alert("Error adding to cart");
+    } else {
+      const data = await response.json();
+      console.log(data.message);
+    }
+  };
 
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -112,10 +151,10 @@ export default function Catalog() {
             ) : furnitureItems.length > 0 ? (
               <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-8">
                 {filteredItems.map((item) => (
-                  <div key={item.id} className="group relative">
+                  <div key={item._id} className="group relative">
                     <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 lg:aspect-none group-hover:opacity-75">
                       <img
-                        src={item.imageUrl || "/path/to/placeholder.jpg"}
+                        src={item.image || "/path/to/placeholder.jpg"}
                         alt={item.name}
                         className="h-full w-full object-cover object-center lg:h-full lg:w-full"
                         width={300}
@@ -125,7 +164,7 @@ export default function Catalog() {
                     <div className="mt-4 flex justify-between">
                       <div>
                         <h3 className="text-sm font-medium text-foreground">
-                          <Link href={`/furniture/${item.id}`}>
+                          <Link href={`/furniture/${item._id}`}>
                             <span aria-hidden="true" className="absolute inset-0" />
                             {item.name}
                           </Link>
@@ -138,6 +177,7 @@ export default function Catalog() {
                         variant="outline"
                         size="sm"
                         className="rounded-full p-2 hover:bg-primary hover:text-primary-foreground"
+                        onClick={() => addToCart(item._id)} // Only add to cart if logged in
                       >
                         <PlusIcon className="h-5 w-5" />
                         <span className="sr-only">Add to cart</span>
@@ -206,8 +246,8 @@ function PlusIcon(props) {
 function SearchIcon(props) {
   return (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8" />
-      <path d="m21 21-4.3-4.3" />
+      <circle cx="10.5" cy="10.5" r="7.5" />
+      <line x1="16.5" y1="16.5" x2="20.5" y2="20.5" />
     </svg>
   );
 }

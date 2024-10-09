@@ -1,4 +1,4 @@
-import { NextRequest,NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/dbConnect';
 import Users from '@/model/user.model';
 import bcrypt from 'bcrypt';
@@ -30,8 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Compare passwords
-    const isMatch = await bcrypt.compare(reqBody.password, user.password);
-
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return NextResponse.json(
         { message: 'Incorrect password.' },
@@ -39,20 +38,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create JWT token
+    // Create JWT token with the user ID and email
     const token = jwt.sign(
-      { email: user.email, id: user._id },
+      { email: user.email, id: user._id }, // Include the user's ID
       JWT_SECRET,
       { expiresIn: '1h' }
     );
 
-    // Send response with token in cookies
+    // Send response with token and user ID
     const response = NextResponse.json({
-      message: "Login Successful"
+      message: "Login Successful",
+      userId: user._id, // Send back the user ID
     });
+    
     response.cookies.set('token', token, {
       httpOnly: true,
-      path: '/'
+      path: '/',
     });
 
     return response;
@@ -62,8 +63,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }
-
-
-
-
-

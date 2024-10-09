@@ -10,23 +10,37 @@ export async function POST(req: NextRequest) {
   await dbConnect();
 
   try {
+    // Check if the furniture exists
     const furniture = await Furniture.findById(furnitureId);
     if (!furniture) {
       return NextResponse.json({ message: 'Furniture not found' }, { status: 404 });
     }
 
+    // Find or create the user's cart
     const cart = await Cart.findOne({ user: userId });
     if (cart) {
-      // If cart exists, add item to cart
-      cart.furnitureItems.push({ item: furnitureId, quantity });
+      
+      // Update existing cart
+      const existingItemIndex = cart.furnitureItems.findIndex(item => item.item.toString() === furnitureId);
+      
+      if (existingItemIndex > -1) {
+        // If the item exists, update its quantity
+        cart.furnitureItems[existingItemIndex].quantity += quantity;
+      } else {
+        // If the item doesn't exist, add it
+        cart.furnitureItems.push({ item: furnitureId, quantity });
+      }
+      
       await cart.save();
+      alert("item added to cart");
     } else {
-      // If no cart exists, create a new cart
+      // Create a new cart if it doesn't exist
       await Cart.create({ user: userId, furnitureItems: [{ item: furnitureId, quantity }] });
     }
 
     return NextResponse.json({ message: 'Added to cart successfully' }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: 'Error adding to cart', error }, { status: 500 });
+    console.error('Error adding to cart:', error);
+    return NextResponse.json({ message: 'Error adding to cart', error: error.message }, { status: 500 });
   }
 }
