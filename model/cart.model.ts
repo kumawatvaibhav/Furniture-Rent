@@ -1,28 +1,25 @@
-import mongoose, { Document, Schema, Types } from 'mongoose';
+// models/cart.model.ts
+import mongoose from 'mongoose';
 
-export interface ICartItem {
-  item: Types.ObjectId;        // Reference to Furniture model
-  quantity: number;            // Quantity of the item
-}
-
-export interface ICart extends Document {
-  user: Types.ObjectId;        // Reference to User model
-  furnitureItems: ICartItem[]; // Array of cart items
-}
-
-const CartItemSchema: Schema = new Schema({
-  item: { type: Schema.Types.ObjectId, ref: 'Furniture', required: true },
-  quantity: { type: Number, required: true, min: 1 },
+const CartSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user', // assuming you have a User model
+    required: true,
+  },
+  furnitureItems: [
+    {
+      item: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'furniture', // assuming you have a Furniture model
+      },
+      quantity: {
+        type: Number,
+        default: 1,
+      },
+    },
+  ],
 });
 
-const CartSchema: Schema = new Schema(
-  {
-    user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    furnitureItems: [CartItemSchema],
-  },
-  { timestamps: true } // Adds createdAt and updatedAt fields
-);
-
-const Cart = mongoose.models.Cart || mongoose.model<ICart>('Cart', CartSchema);
-
+const Cart = mongoose.models.Cart || mongoose.model('Cart', CartSchema);
 export default Cart;

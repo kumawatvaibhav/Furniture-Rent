@@ -36,7 +36,9 @@ export default function Login() {
       alert(response.data.message || "Login successful");
 
       // On successful login
-      sessionStorage.setItem('currentUser', JSON.stringify(response));
+      sessionStorage.setItem('user', JSON.stringify({
+        userId: response.data.userId,
+      }));
 
       router.push("/");
     } catch (error) {

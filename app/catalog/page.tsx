@@ -12,7 +12,8 @@ import {
   PaginationNext,
   PaginationLink,
 } from "@/components/ui/pagination";
-import { Link, SearchIcon } from "lucide-react";
+import { SearchIcon } from "lucide-react";
+import Link from "next/link";
 
 export default function Catalog() {
   const [furnitureItems, setFurnitureItems] = useState([]);
@@ -49,34 +50,58 @@ export default function Catalog() {
     fetchFurnitureData();
   }, []);
 
-  const addToCart = async (furnitureId: string) => {
-    if (!currentUser) {
-      alert("Please log in to add items to your cart.");
-      return;
-    }
-
-    console.log("Adding to cart for user ID:", currentUser._id); // Debugging: Check the user ID
-    const response = await fetch('http://localhost:3000/api/cart/add', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        userId: currentUser._id,  // Use the current user's ID
-        furnitureId: furnitureId,
-        quantity: 1,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Error adding to cart:', errorData.message);
-      alert("Error adding to cart");
-    } else {
-      const data = await response.json();
-      console.log(data.message);
+  const addToCart = async (furnitureId) => {
+    try {
+      // Retrieve the session data
+      const sessionData = sessionStorage.getItem('user');
+      console.log('Session Data:', sessionData); // Check if sessionData is being retrieved
+  
+      if (!sessionData) {
+        console.error('No session data found');
+        return;
+      }
+  
+      // Parse the session data
+      const parsedData = JSON.parse(sessionData);
+      console.log('Parsed Session Data:', parsedData); // Check parsed session data
+  
+      // Access the userId inside parsedData.data
+      const userId = parsedData?.userId;
+  
+      // Ensure userId is defined
+      if (!userId) {
+        console.error('User not logged in or user ID is missing');
+        return;
+      }
+  
+      console.log('Adding to cart for user ID:', userId);
+  
+      // Send the add to cart request to the API
+      const response = await fetch('/api/cart/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: userId,       // Pass the userId
+          furnitureId: furnitureId, // Pass the furnitureId
+          quantity: 1,          // Default quantity, you can modify as needed
+        }),
+      });
+  
+      const result = await response.json();
+  
+      if (response.status === 200) {
+        console.log('Item added to cart successfully:', result);
+        alert("Item added to cart")
+      } else {
+        console.error('Error adding to cart:', result.message);
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
     }
   };
+  
 
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -160,10 +185,8 @@ export default function Catalog() {
                     <div className="mt-4 flex justify-between">
                       <div>
                         <h3 className="text-sm font-medium text-foreground">
-                          <Link href={`/furniture/${item._id}`}>
-                            <span aria-hidden="true" className="absolute inset-0" />
-                            {item.name}
-                          </Link>
+                          <span aria-hidden="true" className="absolute inset-0" />
+                          {item.name}
                         </h3>
                         <p className="mt-1 text-sm text-muted-foreground">
                           ${item.price}/month
@@ -172,8 +195,10 @@ export default function Catalog() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="rounded-full p-2 hover:bg-primary hover:text-primary-foreground"
-                        onClick={() => addToCart(item._id)} // Use the current user's ID
+                        className="rounded-full p-2 hover:bg-primary hover:text-primary-foreground z-10"
+                        onClick={() => {
+                          addToCart(item._id);
+                        }}
                       >
                         <PlusIcon className="h-5 w-5" />
                         <span className="sr-only">Add to cart</span>
