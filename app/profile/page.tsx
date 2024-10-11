@@ -43,6 +43,27 @@ export default function ProfilePage() {
     }
   };
 
+  // Handle form submission to update profile
+  const handleUpdateProfile = async (event) => {
+    event.preventDefault();
+
+    const updatedData = {
+      name: event.target.name.value,
+      email: event.target.email.value,
+      address: event.target.address.value,
+      phone: event.target.phone.value,
+    };
+
+    try {
+      const response = await axios.put('/api/user/update', updatedData);
+      setUserData(response.data); // Update the userData state with the new data
+      alert('Profile updated successfully');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Failed to update profile');
+    }
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -138,37 +159,35 @@ export default function ProfilePage() {
           {/* Update Profile Section */}
           <section>
             <h2 className="text-2xl font-semibold">Update Profile</h2>
-            <Card>
-              <CardContent className="mt-5 grid gap-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="name">Name</Label>
-                    <Input id="name" defaultValue={userData.name} />
+            <form onSubmit={handleUpdateProfile}>
+              <Card>
+                <CardContent className="mt-5 grid gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="name">Name</Label>
+                      <Input id="name" defaultValue={userData.name} />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input id="email" type="email" defaultValue={userData.email} />
+                    </div>
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" defaultValue={userData.email} />
+                    <Label htmlFor="address">Address</Label>
+                    <Textarea id="address" rows={3} defaultValue={userData.address} />
                   </div>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="address">Address</Label>
-                  <Textarea id="address" rows={3} defaultValue={userData.address} />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="phone">Phone</Label>
-                    <Input id="phone" type="tel" defaultValue={userData.phone} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="phone">Phone</Label>
+                      <Input id="phone" type="tel" defaultValue={userData.phone} />
+                    </div>
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input id="password" type="password" />
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button className="ml-auto">Update Profile</Button>
-              </CardFooter>
-            </Card>
+                </CardContent>
+                <CardFooter>
+                  <Button className="ml-auto" type="submit">Update Profile</Button>
+                </CardFooter>
+              </Card>
+            </form>
           </section>
         </div>
       </main>

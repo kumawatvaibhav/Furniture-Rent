@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button";
 import { CardContent, Card, CardTitle, CardDescription, CardHeader } from "@/components/ui/card";
 import axios from "axios";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export default function Component() {
   const [username, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter(); 
 
   const handleFormValueChange = (e: { target: { id: string; value: SetStateAction<string> } }) => {
     if (e.target.id === "username") {
@@ -33,8 +35,11 @@ export default function Component() {
         password,
       });
 
+      router.push("/Login");
+
       console.log(response.data);
       alert("Successfully registered!");
+
     } catch (error) {
       console.error(error);
       alert("Something went wrong. Please try again.");

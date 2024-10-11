@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
 import dbConnect from '@/lib/dbConnect';
 import User from '@/model/user.model';
+import nodemailer from 'nodemailer';
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,27 +28,43 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log(bcrypt.version)
-
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log("Original password:", password);  // Log original password
-    console.log("Hashed password:", hashedPassword);  // Log hashed password
 
     // Create and save user
     const newUser = new User({
       username,
       email,
-      password,
+      password: hashedPassword,
     });
 
     await newUser.save();
 
+    // Set up Nodemailer transport with App Password
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: '22bt04059@gsfcuniversity.ac.in',  // Replace with your Gmail address
+        pass: 'gtok vgxq suvl hgia',     // Replace with the App Password
+      },
+    });
+
+    const mailOptions = {
+      from: '22bt04059@gsfcuniversity.ac.in',   // Sender address
+      to: email,                      // Receiver's email
+      subject: 'Account Confirmation',
+      text: `Hello ${username},\n\nThank you for registering. Please confirm your email by clicking the following link: \nhttp://Ario.com/confirm?email=${email}\n\nBest Regards,\nTeam`,
+    };
+
+    // Send email
+    await transporter.sendMail(mailOptions);
+
     // Respond with success
     return NextResponse.json(
-      { message: 'User registered successfully', user: newUser },
+      { message: 'User registered successfully, confirmation email sent', user: newUser },
       { status: 201 }
     );
+
   } catch (error) {
     console.error('Error registering user:', error);
     return NextResponse.json(

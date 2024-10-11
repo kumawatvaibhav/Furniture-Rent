@@ -58,6 +58,7 @@ export default function Catalog() {
   
       if (!sessionData) {
         console.error('No session data found');
+        alert("Need to login first");
         return;
       }
   

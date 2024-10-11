@@ -82,7 +82,7 @@ export function DashboardComponent() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+              {/* <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="flex items-center gap-2">
                   <FilterIcon className="w-5 h-5" />
                   <span>
@@ -93,7 +93,7 @@ export function DashboardComponent() {
                       : "Rented"}
                   </span>
                 </Button>
-              </DropdownMenuTrigger>
+              </DropdownMenuTrigger> */}
               <DropdownMenuContent align="start">
                 <DropdownMenuItem onSelect={() => setFilters({ ...filters, availability: "all" })}>
                   All
@@ -140,7 +140,7 @@ export function DashboardComponent() {
               placeholder="Search furniture..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 w-full"
+              className="rounded-md pl-10 w-full"
             />
           </div>
           <Link href="/dashboard/add_product">
@@ -201,7 +201,7 @@ export function DashboardComponent() {
           </div>
           <div className="flex flex-col items-center md:items-start">
             <span className="text-muted-foreground text-sm font-medium">Available Items</span>
-            <span className="text-2xl font-bold">{availableItems}</span>
+            <span className="text-2xl font-bold">{totalItems-rentedItems}</span>
           </div>
         </div>
       </footer>
