@@ -4,12 +4,6 @@ import Furniture from "@/model/furniture.model";
 import fs from "fs";
 import path from "path";
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 // POST method to add new furniture
 export async function POST(req: NextRequest) {
   console.log("Connecting to database...");
