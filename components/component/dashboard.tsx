@@ -35,7 +35,7 @@ export function DashboardComponent() {
   useEffect(() => {
     const fetchFurnitureData = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/furniture/list");
+        const response = await fetch("/api/furniture/list");
         const data = await response.json();
         console.log("Fetched furniture data:", data);
         setFurniture(data.furniture); 
