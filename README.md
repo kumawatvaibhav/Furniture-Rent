@@ -89,11 +89,8 @@ This furniture rental platform enables users to explore, select, and rent a vari
 ### Login Page
 ![Login](./screenshots/login.png)
 
-### Product Details Pop-up
-![Product Details](./screenshots/product-details.png)
-
 ### Checkout Page
-![Checkout](./screenshots/checkout.png)
+![Checkout](./screenshots/cart.png)
 
 ---
 
@@ -107,6 +104,9 @@ The **Admin Dashboard** is designed for effective inventory and order management
 
 ### Dashboard Screenshot
 ![Admin Dashboard](./screenshots/dashboard.png)
+
+### Add product in dashboard
+![Add product](./screenshots/add_product.png)
 
 ---
 
