@@ -29,7 +29,7 @@ export default function Component() {
 
   const register = async () => {
     try {
-      const response = await axios.post("http://localhost:3000/api/auth/sign-up", {
+      const response = await axios.post("/api/auth/sign-up", {
         username,
         email,
         password,
