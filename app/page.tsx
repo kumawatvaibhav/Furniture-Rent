@@ -1,14 +1,13 @@
 'use client';
 import Image from "next/image";
 import Header from "@/components/component/header";
-import product from '@/lib/Card_data';
 import { Button } from "@/components/ui/button";
 const imageStyle = {
   borderRadius: "15%",
   border: "1px solid #fff",
 };
-import App from "@/lib/Card_data";
-import { cn } from "@/lib/cn";
+import App from "@/lib/Card_data";  //Card Stack
+
 import Link from "next/link";
 import {
   CardTitle,
@@ -18,17 +17,9 @@ import {
   Card,
   CardFooter,
 } from "@/components/ui/card";
-import RoomModel from "@/components/3D_interact/RoomModel";
-import Spline from "@splinetool/react-spline";
-import CardStack from "@/components/ui/card-stack";
 
-export function CardStackDemo() {
-  return (
-    <div className="h-[40rem] flex items-center justify-center w-full">
-      <CardStack items={product} />
-    </div>
-  );
-}
+import Spline from "@splinetool/react-spline";  //Spline 3D model
+import { ShieldCheckIcon, SofaIcon, TruckIcon } from "lucide-react";
 
 export default function Home(){
   return (
@@ -37,7 +28,6 @@ export default function Home(){
       <section id="Main-section" className="h-screen">
         <div className="w-full">
         <Spline scene="https://prod.spline.design/zjn66bHs3hgB06Om/scene.splinecode"/>
-        {/* <RoomModel splineUrl="https://prod.spline.design/zjn66bHs3hgB06Om/scene.splinecode" /> */}
         </div>
       </section>
       <section id="Explore" className="bg-muted p-10 py-16 md:py-32 h-screen">
@@ -205,7 +195,7 @@ export default function Home(){
       <section id="Works" className="py-12 md:py-24">
         <div className="container px-4 md:px-6">
           <div className="grid md:grid-cols-2 gap-8 items-center">
-            <img
+            <Image
               src="/Movers.jpg"
               width={500}
               height={500}
@@ -252,7 +242,7 @@ export default function Home(){
                   <div>
                     <h3 className="font-semibold">Enjoy and Return</h3>
                     <p className="text-muted-foreground">
-                      Receive your furniture, use it, and return it when you're
+                      Receive your furniture, use it, and return it when you are
                       done.
                     </p>
                   </div>
@@ -288,69 +278,4 @@ export default function Home(){
   );
 }
 
-function SofaIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3" />
-      <path d="M2 11v5a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v2H6v-2a2 2 0 0 0-4 0Z" />
-      <path d="M4 18v2" />
-      <path d="M20 18v2" />
-      <path d="M12 4v9" />
-    </svg>
-  )
-}
 
-
-function TruckIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
-      <path d="M15 18H9" />
-      <path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14" />
-      <circle cx="17" cy="18" r="2" />
-      <circle cx="7" cy="18" r="2" />
-    </svg>
-  )
-}
-
-function ShieldCheckIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
-  )
-}

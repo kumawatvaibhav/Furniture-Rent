@@ -8,6 +8,18 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { BellIcon, FilePenIcon, FilterIcon, ListIcon, PlusIcon, SearchIcon, SofaIcon, TrashIcon, UserIcon } from "lucide-react"
+import Image from "next/image"
+
+// Define a type for furniture items
+interface FurnitureItem {
+  id: number;
+  name: string;
+  category: string;
+  availability: "available" | "rented";
+  description: string;
+  price: number;
+  image: string;
+}
 
 export function DashboardComponent() {
   const [search, setSearch] = useState("")
@@ -15,13 +27,12 @@ export function DashboardComponent() {
     availability: "all",
     category: "all",
   })
-  const [furniture, setFurniture] = useState([]) // Furniture data from API
+  const [furniture, setFurniture] = useState<FurnitureItem[]>([]) // Define the state as an array of FurnitureItem
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
 
   // Fetch furniture data from API
   useEffect(() => {
-
     const fetchFurnitureData = async () => {
       try {
         const response = await fetch("http://localhost:3000/api/furniture/list");
@@ -31,13 +42,13 @@ export function DashboardComponent() {
         setLoading(false);
       } catch (error) {
         console.error("Error fetching furniture data:", error);
+        setError("Failed to load furniture data.");
         setLoading(false);
       }
     };
 
     fetchFurnitureData();
   }, []);
-  
 
   const filteredFurniture = useMemo(() => {
     return furniture.filter((item) => {
@@ -72,7 +83,7 @@ export function DashboardComponent() {
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon">
             <Link href="/profile">
-            <UserIcon className="w-5 h-5" />
+              <UserIcon className="w-5 h-5" />
             </Link>
           </Button>
         </div>
@@ -82,18 +93,6 @@ export function DashboardComponent() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <DropdownMenu>
-              {/* <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <FilterIcon className="w-5 h-5" />
-                  <span>
-                    {filters.availability === "all"
-                      ? "All"
-                      : filters.availability === "available"
-                      ? "Available"
-                      : "Rented"}
-                  </span>
-                </Button>
-              </DropdownMenuTrigger> */}
               <DropdownMenuContent align="start">
                 <DropdownMenuItem onSelect={() => setFilters({ ...filters, availability: "all" })}>
                   All
@@ -152,59 +151,26 @@ export function DashboardComponent() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filteredFurniture.map((item) => (
-            <Card key={item.id}>
-              <img
-                src={item.image || "/placeholder.svg"}
-                alt={item.name}
-                width={400}
-                height={300}
-                className="object-cover w-full h-48"
-                style={{ aspectRatio: "400/300", objectFit: "cover" }}
-              />
-              <CardContent className="p-4">
-                <h3 className="text-lg font-semibold">{item.name}</h3>
-                <p className="text-muted-foreground text-sm line-clamp-2">{item.description}</p>
-                <div className="flex items-center justify-between mt-4">
-                  <Badge variant={item.available === "true" ? "secondary" : "outline"}>
-                    {item.available}
-                  </Badge>
-                  <div className="text-lg font-semibold">${item.price}/month</div>
-                </div>
+            <Card key={item.id} className="shadow-lg">
+              <Image src={item.image} alt={item.name} width={200} height={200} />
+              <CardContent>
+                <h3 className="text-lg font-bold">{item.name}</h3>
+                <p className="text-sm text-muted-foreground">{item.description}</p>
+                <Badge variant="default">
+                  {item.availability === "available" ? "Available" : "Rented"}
+                </Badge>
+                <p className="mt-2 text-xl font-semibold text-gray-700">₹{item.price}</p>
               </CardContent>
-              {/* <CardFooter className="p-4 flex justify-end gap-2">
-                <Button variant="outline" size="sm">
-                  <FilePenIcon className="w-4 h-4 mr-1" />
-                  Edit
-                </Button>
-                <Button variant="outline" size="sm">
-                  <TrashIcon className="w-4 h-4 mr-1" />
+              <CardFooter>
+                <Button variant="ghost" className="text-red-500">
+                  <TrashIcon className="w-5 h-5 mr-2" />
                   Delete
                 </Button>
-              </CardFooter> */}
+              </CardFooter>
             </Card>
           ))}
         </div>
       </main>
-      <footer className="bg-muted p-6 md:p-10 flex flex-col md:flex-row items-center justify-between">
-        <div className="flex items-center gap-4">
-          <SofaIcon className="w-6 h-6" />
-          <span className="text-lg font-bold">Ario!</span>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 md:mt-0">
-          <div className="flex flex-col items-center md:items-start">
-            <span className="text-muted-foreground text-sm font-medium">Total Items</span>
-            <span className="text-2xl font-bold">{totalItems}</span>
-          </div>
-          <div className="flex flex-col items-center md:items-start">
-            <span className="text-muted-foreground text-sm font-medium">Rented Items</span>
-            <span className="text-2xl font-bold">{rentedItems}</span>
-          </div>
-          <div className="flex flex-col items-center md:items-start">
-            <span className="text-muted-foreground text-sm font-medium">Available Items</span>
-            <span className="text-2xl font-bold">{totalItems-rentedItems}</span>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

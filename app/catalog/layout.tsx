@@ -2,6 +2,7 @@ import { DM_Sans } from 'next/font/google'
 import { Space_Mono } from 'next/font/google'
 import { cn } from '@/lib/utils'
 import "./global.css"
+import { ReactNode } from 'react'; // Import ReactNode
 
 const fontHeading = DM_Sans({
   subsets: ['latin'],
@@ -16,7 +17,12 @@ const fontBody = Space_Mono({
   weight: '700'
 })
 
-export default function Layout({ children }) {
+// Define props type
+interface LayoutProps {
+  children: ReactNode; // Explicitly define the type of children
+}
+
+export default function Layout({ children }: LayoutProps) { // Use the defined props type
   return (
     <html lang="en">
       <body 

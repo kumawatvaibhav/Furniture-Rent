@@ -1,37 +1,49 @@
-import { getSession } from 'next-auth/react';
-import dbConnect from '@/lib/dbConnect'; // Assuming you have a DB connection setup
-import User from '@/model/user.model'; // Import your User model
+import { NextRequest, NextResponse } from 'next/server';
+import jwt from 'jsonwebtoken'; // For JWT validation
+import dbConnect from '@/lib/dbConnect'; // Database connection utility
+import User from '@/model/user.model'; // Import User model
 
-export default async function handler(req, res) {
-  if (req.method !== 'PUT') {
-    return res.status(405).json({ message: 'Method not allowed' });
-  }
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
+// PUT method to update the user's details
+export async function PUT(req: NextRequest) {
   try {
-    const session = await getSession({ req }); // Get the logged-in user's session
-    if (!session) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    const { name, email, address, phone } = req.body;
-
-    // Connect to your database
+    // Establish DB connection
     await dbConnect();
 
-    // Update the user's information in the database
+    // Extract the token from the request cookies
+    const token = req.cookies.get('token')?.value;
+    if (!token) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Verify the JWT token
+    let userId;
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      userId = (decoded as any).id; // Cast to any and extract the user ID
+    } catch (error) {
+      return NextResponse.json({ message: 'Invalid token' }, { status: 401 });
+    }
+
+    // Parse the incoming request body
+    const { name, email, address, phone } = await req.json();
+
+    // Update user info using the user ID from the decoded token
     const updatedUser = await User.findByIdAndUpdate(
-      session.user._id,  // assuming the user's ID is stored in the session
+      userId, 
       { name, email, address, phone },
-      { new: true } // Return the updated user
+      { new: true } // Return the updated user object
     );
 
     if (!updatedUser) {
-      return res.status(404).json({ message: 'User not found' });
+      return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
-    return res.status(200).json(updatedUser);
-  } catch (error) {
+    // Return updated user information
+    return NextResponse.json(updatedUser, { status: 200 });
+  } catch (error: any) {
     console.error('Error updating profile:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500 });
   }
 }

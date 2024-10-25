@@ -7,11 +7,33 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import Header from "@/components/component/header";
 import { CalendarIcon, FileIcon, TruckIcon } from "lucide-react";
+import Image from "next/image";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
+// Define types for cart items and cart data
+interface CartItem {
+  _id: string;
+  item: {
+    name: string;
+    price: number;
+    deposit: number;
+    image: string;
+  };
+  quantity: number;
+}
+
+interface CartData {
+  payableNow: number;
+  totalMonthlyRent: number;
+  items: {
+    price: number;
+  };
+  furnitureItems: CartItem[];
+}
+
 export default function Component() {
-  const [cartData, setCartData] = useState(null);
+  const [cartData, setCartData] = useState<CartData | null>(null);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null); // State to hold the userId
 
@@ -48,34 +70,35 @@ export default function Component() {
       console.error("Cart data or payableNow amount is not available.");
       return;
     }
-
+  
     const stripe = await stripePromise;
-
+  
     if (!stripe) {
       console.error("Stripe.js has not yet loaded.");
       return;
     }
-
+  
     try {
-      // Call your backend to create a PaymentIntent
+      // Call your backend to create a Checkout session
       const response = await axios.post('/api/payment', {
         amount: cartData.payableNow * 100, // Convert to paise or smallest currency unit
       });
-
-      const { clientSecret } = response.data;
-
+  
+      const { sessionId } = response.data; // Changed from clientSecret to sessionId
+  
       // Redirect to the Stripe Checkout
       const { error } = await stripe.redirectToCheckout({
-        clientSecret,
+        sessionId, // Use sessionId here
       });
-
+  
       if (error) {
         console.error("Error redirecting to checkout:", error);
       }
     } catch (error) {
       console.error("Error during payment processing:", error);
     }
-  };
+  };  
+  
 
   if (loading) {
     return <div>Loading...</div>;
@@ -159,18 +182,19 @@ export default function Component() {
             </div>
             <div className="w-1/3 space-y-4 bg-white text-black z-10">
               {cartData.furnitureItems?.map((furnitureItem) => {
-                const item = furnitureItem.item; 
-                console.log(item)
+                const item = furnitureItem.item;
+                console.log(item);
                 return (
                   <div
                     key={furnitureItem._id}
                     className="p-4 bg-white rounded shadow"
                   >
                     <div className="flex items-center space-x-4">
-                      <img
+                      <Image
                         src={item.image}
                         alt={item.name}
-                        className="h-16 w-16 rounded"
+                        height={500}
+                        width={500}
                       />
                       <div>
                         <h3 className="text-sm font-medium">{item.name}</h3>
@@ -199,14 +223,10 @@ export default function Component() {
                         <SelectContent>
                           <SelectItem value="6">6 Months</SelectItem>
                           <SelectItem value="12">12 Months</SelectItem>
-                          <SelectItem value="24">24 Months</SelectItem>
+                          <SelectItem value="18">18 Months</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                    <p className="mt-4 text-xs text-gray-500">
-                      <TruckIcon className="inline h-4 w-4 mr-1" />
-                      Delivery in 3-5 days post KYC
-                    </p>
                   </div>
                 );
               })}

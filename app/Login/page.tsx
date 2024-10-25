@@ -1,5 +1,6 @@
-"use client";
-import axios from "axios";
+'use client'
+
+import axios, { AxiosError } from "axios";
 import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -28,7 +29,7 @@ export default function Login() {
     setLoading(true);
     setErrorMessage("");
     try {
-      const response = await axios.post("/api/auth/login", { email, password});
+      const response = await axios.post("/api/auth/login", { email, password });
       const { token } = response.data;
       
       // Save the token in localStorage
@@ -43,8 +44,11 @@ export default function Login() {
       router.push("/");
     } catch (error) {
       console.error("Login Error:", error);
-      if (error.response && error.response.data) {
-        setErrorMessage(error.response.data.message || "Login failed. Please try again.");
+      if (axios.isAxiosError(error)) {
+        // Type guard to check if the error is an AxiosError
+        if (error.response && error.response.data) {
+          setErrorMessage(error.response.data.message || "Login failed. Please try again.");
+        }
       } else {
         setErrorMessage("Something went wrong. Please check your credentials and try again.");
       }
@@ -52,7 +56,6 @@ export default function Login() {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="flex h-screen items-center justify-center bg-gradient-to-r from-red-500 to-orange-300">
@@ -92,7 +95,7 @@ export default function Login() {
             </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="create account?" className="text-sm">
-                Don't have an account?
+                Do not have an account?
               </Label>
               <Link href="/register" className="text-sm">
                 Signup
@@ -110,5 +113,4 @@ export default function Login() {
       </div>
     </div>
   );
-
 }

@@ -12,7 +12,8 @@ export async function POST(req: NextRequest) {
     const user = await User.create({ email, password: hashedPassword });
     return NextResponse.json({ success: true, data: user });
   } catch (error) {
-    return NextResponse.json({ success: false, error: error.message });
+    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+    return NextResponse.json({ success: false, error: errorMessage });
   }
 }
 
@@ -22,6 +23,7 @@ export async function GET() {
     const users = await User.find({});
     return NextResponse.json({ success: true, data: users });
   } catch (error) {
-    return NextResponse.json({ success: false, error: error.message });
+    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+    return NextResponse.json({ success: false, error: errorMessage });
   }
 }

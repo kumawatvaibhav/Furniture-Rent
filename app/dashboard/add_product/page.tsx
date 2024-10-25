@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Textarea } from "@nextui-org/input";
 import { useDropzone } from "react-dropzone";
+import Image from "next/image";
 
 function AddFurniture() {
   const [furnitureDetails, setFurnitureDetails] = useState({
@@ -157,10 +158,12 @@ function AddFurniture() {
               </div>
               {previewImage && (
                 <div className="mt-4 flex justify-center">
-                  <img
+                  <Image
                     src={previewImage}
                     alt="Furniture Preview"
                     className="w-48 h-48 object-cover rounded-lg shadow-md"
+                    width={500}
+                    height={500}
                   />
                 </div>
               )}

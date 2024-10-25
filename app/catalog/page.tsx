@@ -12,11 +12,20 @@ import {
   PaginationNext,
   PaginationLink,
 } from "@/components/ui/pagination";
-import { SearchIcon } from "lucide-react";
+import { PlusIcon, SearchIcon } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+
+interface FurnitureItem {
+  _id: string;
+  name: string;
+  price: number;
+  category: string;
+  image: string;
+}
 
 export default function Catalog() {
-  const [furnitureItems, setFurnitureItems] = useState([]);
+  const [furnitureItems, setFurnitureItems] = useState<FurnitureItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -49,8 +58,8 @@ export default function Catalog() {
 
     fetchFurnitureData();
   }, []);
-
-  const addToCart = async (furnitureId) => {
+  
+  const addToCart = async (furnitureId: string) => {
     try {
       // Retrieve the session data
       const sessionData = sessionStorage.getItem('user');
@@ -175,7 +184,7 @@ export default function Catalog() {
                 {filteredItems.map((item) => (
                   <div key={item._id} className="group relative">
                     <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 lg:aspect-none group-hover:opacity-75">
-                      <img
+                      <Image
                         src={item.image || "/path/to/placeholder.jpg"}
                         alt={item.name}
                         className="h-full w-full object-cover object-center lg:h-full lg:w-full"
@@ -218,11 +227,14 @@ export default function Catalog() {
                 <Pagination>
                   <PaginationContent>
                     <PaginationItem>
-                      <PaginationPrevious
-                        href="#"
-                        onClick={handlePreviousPage}
-                        disabled={currentPage === 1}
-                      />
+                      {currentPage > 1 ? (
+                        <PaginationPrevious
+                          href="#"
+                          onClick={handlePreviousPage}
+                        />
+                      ) : (
+                        <span className="opacity-50 cursor-not-allowed">Previous</span>
+                      )}
                     </PaginationItem>
 
                     {[...Array(totalPages)].map((_, i) => (
@@ -238,11 +250,14 @@ export default function Catalog() {
                     ))}
 
                     <PaginationItem>
-                      <PaginationNext
-                        href="#"
-                        onClick={handleNextPage}
-                        disabled={currentPage === totalPages}
-                      />
+                      {currentPage < totalPages ? (
+                        <PaginationNext
+                          href="#"
+                          onClick={handleNextPage}
+                        />
+                      ) : (
+                        <span className="opacity-50 cursor-not-allowed">Next</span>
+                      )}
                     </PaginationItem>
                   </PaginationContent>
                 </Pagination>
@@ -255,10 +270,3 @@ export default function Catalog() {
   );
 }
 
-function PlusIcon(props) {
-  return (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M5 12h14m-7-7v14" />
-    </svg>
-  );
-}

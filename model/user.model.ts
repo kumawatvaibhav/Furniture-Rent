@@ -1,13 +1,22 @@
+// user.model.ts
 import mongoose, { Schema, Document } from 'mongoose';
-import bcrypt from 'bcryptjs';
+import { IRentedFurniture } from './RentedFurniture.model';
+import Furniture from './furniture.model'
 
 export interface IUser extends Document {
+  _id: string;
   username: string;
   email: string;
   password: string;
-  isVerified: boolean;
-  isAcceptingMessages: boolean;
-  comparePassword(enteredPassword: string): Promise<boolean>;
+}
+
+export interface IUserProfile extends IUser {
+  name?: string;
+  avatar?: string;
+  address?: string;
+  phone?: string;
+  rentedFurniture?: IRentedFurniture[];
+  pastOrders? : [];
 }
 
 const UserSchema: Schema = new Schema(
@@ -15,26 +24,12 @@ const UserSchema: Schema = new Schema(
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    avatar: {type: String},
-    address: {type: String},
-    phone: {type: String},
+    avatar: { type: String },
+    address: { type: String },
+    phone: { type: String },
   },
   { timestamps: true }
 );
-
-// Hashing password before saving
-UserSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    next();
-  }
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
-
-// Compare password method
-UserSchema.methods.comparePassword = async function (enteredPassword: string) {
-  return await bcrypt.compare(enteredPassword, this.password);
-};
 
 const User = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
 

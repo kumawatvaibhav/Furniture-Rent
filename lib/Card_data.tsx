@@ -1,6 +1,5 @@
 import React from "react";
-import { CardStack } from "@/components/ui/card-stack"; // Adjust the path as necessary
-import sofa from "@/public/Furniture/Chairs/1_files/sofa.jpg"
+import { CardStack } from "@/components/ui/card-stack";
 
 const product = [
   {

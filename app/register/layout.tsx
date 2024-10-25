@@ -1,3 +1,4 @@
+import { ReactNode } from 'react'
 import { DM_Sans } from 'next/font/google'
 import { Space_Mono } from 'next/font/google'
 import { cn } from '@/lib/utils'
@@ -16,7 +17,11 @@ const fontBody = Space_Mono({
   weight: '700'
 })
 
-export default function Layout({ children }) {
+interface LayoutProps {
+  children: ReactNode
+}
+
+export default function Layout({ children }: LayoutProps) {
   return (
     <html lang="en">
       <body 

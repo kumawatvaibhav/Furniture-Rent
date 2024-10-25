@@ -1,28 +1,36 @@
-// pages/api/payment.ts
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
+// Update to the specific compatible API version
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2022-11-15', // Use the latest Stripe API version
+  apiVersion: '2024-09-30.acacia', // Use the specific version format
 });
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === 'POST') {
-    try {
-      const { amount } = req.body;
+export async function POST(req: Request) {
+  const { amount } = await req.json(); // Use the new Request interface for handling incoming JSON
 
-      // Create a PaymentIntent with the order amount and currency
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount,
-        currency: 'inr', // Change to your currency
-      });
+  try {
+    // Create a Checkout session
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [{
+        price_data: {
+          currency: 'usd', // Change to your currency
+          product_data: {
+            name: 'Your Product Name',
+            // Add additional product details here
+          },
+          unit_amount: amount,
+        },
+        quantity: 1,
+      }],
+      mode: 'payment',
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success`, // Change to your success URL
+      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`, // Change to your cancel URL
+    });
 
-      res.status(200).json({ clientSecret: paymentIntent.client_secret });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  } else {
-    res.setHeader('Allow', ['POST']);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
+    return NextResponse.json({ sessionId: session.id }); // Send session ID back to the client
+  } catch (error) {
+    return NextResponse.json({ error: 'Error creating checkout session' }, { status: 500 });
   }
 }

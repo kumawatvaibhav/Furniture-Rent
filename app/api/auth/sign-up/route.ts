@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import bcrypt from 'bcrypt';
 import dbConnect from '@/lib/dbConnect';
 import User from '@/model/user.model';
 import nodemailer from 'nodemailer';
@@ -9,6 +8,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { username, email, password } = body;
 
+    // Validate input
     if (!username || !email || !password) {
       return NextResponse.json(
         { message: 'All fields are required' },
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     // Connect to the database
     await dbConnect();
 
-    // Check if user already exists
+    // Check if the user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return NextResponse.json(
@@ -28,35 +28,34 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create and save user
+    // Save the new user to the database
     const newUser = new User({
       username,
       email,
-      password: hashedPassword,
+      password, // Storing plain password directly
     });
 
+    // Save the new user
     await newUser.save();
 
-    // Set up Nodemailer transport with App Password
+    // Nodemailer setup for sending confirmation emails
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: '22bt04059@gsfcuniversity.ac.in',  // Replace with your Gmail address
-        pass: 'gtok vgxq suvl hgia',     // Replace with the App Password
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
+    // Email options
     const mailOptions = {
-      from: '22bt04059@gsfcuniversity.ac.in',   // Sender address
-      to: email,                      // Receiver's email
+      from: process.env.EMAIL_USER,
+      to: email,
       subject: 'Account Confirmation',
-      text: `Hello ${username},\n\nThank you for registering. Please confirm your email by clicking the following link: \nhttp://Ario.com/confirm?email=${email}\n\nBest Regards,\nTeam`,
+      text: `Hello ${username},\n\nThank you for registering and your password: ${password}. Please confirm your email by clicking the following link: \nhttp://Ario.com/confirm?email=${email}\n\nBest Regards,\nTeam`,
     };
 
-    // Send email
+    // Send confirmation email
     await transporter.sendMail(mailOptions);
 
     // Respond with success
@@ -65,10 +64,11 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
 
-  } catch (error) {
-    console.error('Error registering user:', error);
+  } catch (error: unknown) { // Explicitly typing the error as unknown
+    const errorMessage = (error instanceof Error) ? error.message : 'Unknown error occurred';
+    console.error('Error during registration process:', error);
     return NextResponse.json(
-      { message: 'Error registering user', error: error.message },
+      { message: 'Error registering user', error: errorMessage },
       { status: 500 }
     );
   }

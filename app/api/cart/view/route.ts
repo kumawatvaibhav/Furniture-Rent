@@ -22,8 +22,11 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ cart }, { status: 200 });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error fetching cart:", error); // Log the actual error
-    return NextResponse.json({ message: 'Error fetching cart', error: error.message }, { status: 500 });
+
+    // Check if error is an instance of Error before accessing the message
+    const errorMessage = (error instanceof Error) ? error.message : 'Unknown error occurred';
+    return NextResponse.json({ message: 'Error fetching cart', error: errorMessage }, { status: 500 });
   }
 }

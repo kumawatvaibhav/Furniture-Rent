@@ -1,12 +1,16 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IFurniture extends Document {
+  id: string;
   name: string;
   price: number;
   description?: string;
   image?: string;
   category?: string;
   available?: boolean;
+  startDate?: Date;
+  endDate?: Date;
+  total?: number;
 }
 
 const FurnitureSchema: Schema = new Schema(
