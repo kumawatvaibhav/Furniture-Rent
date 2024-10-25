@@ -1,10 +1,10 @@
-Here's a detailed `README.md` for your furniture rental website:
 
----
 
 # Furniture Rental Website
 
 Hosted at: [ario-two.vercel.app](https://ario-two.vercel.app/)
+
+<p align="center"> <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" /> <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /> <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" /> <img src="https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white" alt="Framer Motion" /> <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" /> <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" /> </p>
 
 This furniture rental platform enables users to explore, select, and rent a variety of furniture items while managing inventory through an admin dashboard. Built with Next.js and TypeScript, the website offers efficient and seamless user experience.
 
